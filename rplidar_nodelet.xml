@@ -1,0 +1,5 @@
+<library path="lib/librplidarNodelet">
+    <class type="RplidarNodelet" base_class_type="nodelet::Nodelet">
+        <description> rplidar nodelet support S2. </description>
+    </class>
+</library>
