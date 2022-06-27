@@ -1,6 +1,8 @@
 <launch>
-  <node name="standalone_nodelet" pkg="nodelet" type="nodelet" args="manager" output="screen"/> 
-  <node name="rplidarNodelet" pkg="nodelet" type="nodelet" args="load RplidarNodelet standalone_nodelet" output="screen">
+  <node name="standalone_nodelet" pkg="nodelet" type="nodelet" args="manager" output="screen">
+    <param name="num_worker_threads" type="int" value="2"/>
+  </node>
+  <node name="rplidarNode" pkg="nodelet" type="nodelet" args="load RplidarNodelet standalone_nodelet" output="screen">
   <param name="serial_port"         type="string" value="/dev/rplidar"/>  
   <param name="serial_baudrate"     type="int"    value="1000000"/>
   <param name="frame_id"            type="string" value="laser"/>

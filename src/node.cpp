@@ -60,48 +60,50 @@ void publish_scan(ros::Publisher *pub,
                   std::string frame_id)
 {
     static int scan_count = 0;
-    sensor_msgs::LaserScan scan_msg;
+    // sensor_msgs::LaserScan scan_msg;
+    // http://wiki.ros.org/roscpp/Overview/Publishers%20and%20Subscribers#Intraprocess_Publishing
+    sensor_msgs::LaserScanPtr scan_msg(new sensor_msgs::LaserScan());
 
-    scan_msg.header.stamp = start;
-    scan_msg.header.frame_id = frame_id;
+    scan_msg->header.stamp = start;
+    scan_msg->header.frame_id = frame_id;
     scan_count++;
     
     bool reversed = (angle_max > angle_min);
     if ( reversed ) {
-      scan_msg.angle_min =  M_PI - angle_max;
-      scan_msg.angle_max =  M_PI - angle_min;
+      scan_msg->angle_min =  M_PI - angle_max;
+      scan_msg->angle_max =  M_PI - angle_min;
     } else {
-      scan_msg.angle_min =  M_PI - angle_min;
-      scan_msg.angle_max =  M_PI - angle_max;
+      scan_msg->angle_min =  M_PI - angle_min;
+      scan_msg->angle_max =  M_PI - angle_max;
     }
-    scan_msg.angle_increment =
-        (scan_msg.angle_max - scan_msg.angle_min) / (double)(node_count-1);
+    scan_msg->angle_increment =
+        (scan_msg->angle_max - scan_msg->angle_min) / (double)(node_count-1);
 
-    scan_msg.scan_time = scan_time;
-    scan_msg.time_increment = scan_time / (double)(node_count-1);
-    scan_msg.range_min = 0.15;
-    scan_msg.range_max = max_distance;//8.0;
+    scan_msg->scan_time = scan_time;
+    scan_msg->time_increment = scan_time / (double)(node_count-1);
+    scan_msg->range_min = 0.15;
+    scan_msg->range_max = max_distance;//8.0;
 
-    scan_msg.intensities.resize(node_count);
-    scan_msg.ranges.resize(node_count);
+    scan_msg->intensities.resize(node_count);
+    scan_msg->ranges.resize(node_count);
     bool reverse_data = (!inverted && reversed) || (inverted && !reversed);
     if (!reverse_data) {
         for (size_t i = 0; i < node_count; i++) {
             float read_value = (float) nodes[i].dist_mm_q2/4.0f/1000;
             if (read_value == 0.0)
-                scan_msg.ranges[i] = std::numeric_limits<float>::infinity();
+                scan_msg->ranges[i] = std::numeric_limits<float>::infinity();
             else
-                scan_msg.ranges[i] = read_value;
-            scan_msg.intensities[i] = (float) (nodes[i].quality >> 2);
+                scan_msg->ranges[i] = read_value;
+            scan_msg->intensities[i] = (float) (nodes[i].quality >> 2);
         }
     } else {
         for (size_t i = 0; i < node_count; i++) {
             float read_value = (float)nodes[i].dist_mm_q2/4.0f/1000;
             if (read_value == 0.0)
-                scan_msg.ranges[node_count-1-i] = std::numeric_limits<float>::infinity();
+                scan_msg->ranges[node_count-1-i] = std::numeric_limits<float>::infinity();
             else
-                scan_msg.ranges[node_count-1-i] = read_value;
-            scan_msg.intensities[node_count-1-i] = (float) (nodes[i].quality >> 2);
+                scan_msg->ranges[node_count-1-i] = read_value;
+            scan_msg->intensities[node_count-1-i] = (float) (nodes[i].quality >> 2);
         }
     }
 
