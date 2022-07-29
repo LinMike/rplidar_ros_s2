@@ -159,6 +159,7 @@ bool checkRPLIDARHealth(ILidarDriver * drv)
         ROS_ERROR("Error, cannot retrieve rplidar health code: %x", op_result);
         return false;
     }
+    return true;
 }
 
 bool stop_motor(std_srvs::Empty::Request &req,
@@ -203,12 +204,19 @@ private:
 
 public:
     RplidarNodelet() { }
-    ~RplidarNodelet() { }
+    ~RplidarNodelet() { 
+        if (work_thread_.joinable())
+        {
+            ROS_INFO("Preparing to join rplidar work thread.");
+            work_thread_.join();
+            ROS_INFO("Rplidar work thread has been joined.");
+        }
+    }
 
     virtual void onInit()
     {
         work_thread_ = std::thread(std::bind(&RplidarNodelet::workThread, this));
-        work_thread_.detach();
+        // work_thread_.detach();// if detach, rplidar might still rotating when program exit.
     }
 };
 
